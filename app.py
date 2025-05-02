@@ -1,5 +1,6 @@
 import streamlit as st
-import openai
+from openai import OpenAI
+client = OpenAI(api_key=OPENAI_API_KEY)
 import requests
 from dotenv import load_dotenv
 import os
@@ -22,9 +23,8 @@ Length: ~600-750 words.
 """
 
 def get_snippet_text(prompt):
-    openai.api_key = OPENAI_API_KEY
-    response = openai.ChatCompletion.create(
-        model="gpt-4-turbo",
+    response = client.chat.completions.create(
+        model="gpt-4",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.9
     )
