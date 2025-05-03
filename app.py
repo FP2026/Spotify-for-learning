@@ -73,7 +73,8 @@ if st.button("Generate Learning Playlist") and topics:
         with st.spinner("Creating snippet..."):
             prompt = generate_prompt(topic)
             text = get_snippet_text(prompt)
-            audio = generate_audio_elevenlabs(text)
+            cleaned_text = text.replace("[Transition Music]", "").replace("Host:", "").strip()
+            audio = generate_audio_elevenlabs(cleaned_text)     
             audio_filename = f"snippet_{i}.mp3"
             with open(audio_filename, "wb") as f:
                 f.write(audio)
