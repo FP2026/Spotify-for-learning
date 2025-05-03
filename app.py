@@ -30,19 +30,33 @@ def get_snippet_text(prompt):
     )
     return response.choices[0].message.content
 
-def generate_audio_elevenlabs(text, voice="Rachel"):
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice}"
+def generate_audio_elevenlabs(text):
+    ELEVENLABS_API_KEY = st.secrets["ELEVENLABS_API_KEY"]
+    voice_id = "EXAVITQu4vr4xnSDxMaL"  # Rachel
+
+    st.write("🎧 Generating audio for:")
+    st.write(text)
+
+    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/stream"
+
     headers = {
         "xi-api-key": ELEVENLABS_API_KEY,
         "Content-Type": "application/json"
     }
+
     payload = {
         "text": text,
         "model_id": "eleven_monolingual_v1",
         "voice_settings": {"stability": 0.5, "similarity_boost": 0.8}
     }
+
     response = requests.post(url, json=payload, headers=headers)
-    return response.content  # MP3 binary
+
+    if response.status_code != 200:
+        st.error(f"❌ Audio generation failed: {response.status_code} - {response.text}")
+        return None
+
+    return response.content
 
 # --- STREAMLIT UI ---
 st.set_page_config(page_title="Spotify for Learning", page_icon="🎧")
