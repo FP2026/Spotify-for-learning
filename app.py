@@ -4,6 +4,7 @@ client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 import requests
 from dotenv import load_dotenv
 import os
+import re
 
 # --- LOAD API KEYS FROM .env ---
 load_dotenv()
@@ -21,6 +22,17 @@ The script should:
 Language: English.
 Length: ~600-750 words.
 """
+def clean_script(text):
+    # Entferne alles in eckigen Klammern, z. B. [Transition music]
+    text = re.sub(r"\[.*?\]", "", text)
+
+    # Entferne "Host:" am Anfang von Zeilen oder Absätzen
+    text = re.sub(r"\bHost:\s*", "", text)
+
+    # Räume doppelte Leerzeichen auf
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip()
 
 def get_snippet_text(prompt):
     response = client.chat.completions.create(
@@ -73,7 +85,7 @@ if st.button("Generate Learning Playlist") and topics:
         with st.spinner("Creating snippet..."):
             prompt = generate_prompt(topic)
             text = get_snippet_text(prompt)
-            cleaned_text = text.replace("[Transition Music]", "").replace("Host:", "").strip()
+            cleaned_text = clean_script(text)
             audio = generate_audio_elevenlabs(cleaned_text)     
             audio_filename = f"snippet_{i}.mp3"
             with open(audio_filename, "wb") as f:
